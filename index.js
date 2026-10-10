@@ -98,10 +98,10 @@ app.get('/webhook', (req, res) => {
             res.status(200).send(challenge);
         } else {
             res.sendStatus(403);
-     
         }
     }
 });
+
 app.post('/webhook', async (req, res) => {
     let body = req.body;
 
@@ -195,17 +195,36 @@ app.post('/webhook', async (req, res) => {
             else if (command === '.خمن') {
                 let randomChar = guessCharacters[Math.floor(Math.random() * guessCharacters.length)];
                 global.activeGuessGames[sender] = randomChar.name;
-                await sendWhatsAppImage(sender, randomChar.img, `🌝 من هو شخصية الأنمي في الصورة؟ اكتب اسم الشخصية مباشرة للرد الفائز! 🎯`);
+                await sendWhatsAppImage(sender, randomChar.img, `🌝 **لعبة تخمين شخصيات الأنمي** 🎯\nمن هو شخصية الأنمي في الصورة؟ اكتب اسم الشخصية مباشرة للرد الفائز!`);
             }
             else if (command === '.الجاسوس' || command === '.جاسوس') {
-                let secretWords = ["جوجو", "ناروتو", "ساسكي", "جين", "غوكو", "برولي"];
+                let secretWords = ["غوكو", "ناروتو", "ساسكي", "لوفي", "سايتاما", "باكوجان"];
                 let selectedWord = secretWords[Math.floor(Math.random() * secretWords.length)];
-                global.activeSpyGames[sender] = { word: selectedWord };
-                await sendWhatsAppMessage(sender, `🕵️‍♂️ **لعبة الجاسوس:**\nتم بدء الجولة! كلمة السر الخاصة بك هي: *${selectedWord}* 🤫`);
+                
+                global.activeSpyGames[sender] = { word: selectedWord, status: 'started' };
+                
+                let spyIntro = `🕵️‍♂️ **لعبة الجاسوس الملكية** 🕵️‍♂️\n` +
+                               `👥 المشاركون في الجولة الحالية:\n` +
+                               `1️⃣ @${sender.slice(0, 5)}***\n\n` +
+                               `⏳ جارٍ تجهيز الأدوار وإرسال الكلمة السرية في الخاص...\n` +
+                               `⏱️ وقت النقاش: **3 دقائق**، وبعدها سيتم الكشف عن الكلمة والنتائج!`;
+                
+                await sendWhatsAppMessage(sender, spyIntro);
+                
+                setTimeout(async () => {
+                    await sendWhatsAppMessage(sender, `🤫 **الكلمة السرية لجلسة الجاسوس:** *${selectedWord}*\nالتزم بالسرية ولا تظهر أنك تعرفها كاملة!`);
+                }, 2000);
             }
             else if (command === '.اكس اوه' || command === '.xo') {
-                global.activeXoSessions[sender] = { status: 'waiting' };
-                await sendWhatsAppMessage(sender, `❌⭕ **لعبة XO الملكية:**\n[ 1 ] | [ 2 ] | [ 3 ]\n-----------------------\n[ 4 ] | [ 5 ] | [ 6 ]\n-----------------------\n[ 7 ] | [ 8 ] | [ 9 ]\nاكتب رقم الخانة من 1 لـ 9 للبدء!`);
+                global.activeXoSessions[sender] = { board: ['1','2','3','4','5','6','7','8','9'], turn: '❌' };
+                let xoText = `❌⭕ **لعبة XO الملكية** ⭕❌\n` +
+                             `[ 1 ] | [ 2 ] | [ 3 ]\n` +
+                             `-----------------------\n` +
+                             `[ 4 ] | [ 5 ] | [ 6 ]\n` +
+                             `-----------------------\n` +
+                             `[ 7 ] | [ 8 ] | [ 9 ]\n\n` +
+                             `دور اللاعب: ❌\nاكتب رقم الخانة (من 1 إلى 9) لتحديد مكان علامتك!`;
+                await sendWhatsAppMessage(sender, xoText);
             }
             else if (command === '.انهاء') {
                 delete global.activeGuessGames[sender];
@@ -261,4 +280,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Meta Webhook Server is running on port ${PORT}`);
 });
-                
+                      
