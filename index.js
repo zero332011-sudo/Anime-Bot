@@ -5,7 +5,7 @@ const axios = require('axios');
 const app = express();
 app.use(bodyParser.json());
 
-const VERIFY_TOKEN = "malek malek malek 010"; 
+const VERIFY_TOKEN = "123456"; 
 const TOKEN = "ضع_هنا_التوكن_الدائم_من_ميتا"; 
 const PHONE_NUMBER_ID = "69033026138303"; 
 
